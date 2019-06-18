@@ -42,9 +42,9 @@ public class JewelGoalAchievedDetector extends Codelet {
                 if (commHands == null) commHands = "";
                 
                 if(commHands.equals("")){
-                    if(jewelControl.getJewelRemainingTotal()==0){
+                    if(jewelControl.getJewelRemainingTotal()==0 && !goalAchieved.getJewelGoalStatus()){
                         goalAchieved.setJewelGoalStatus(true);
-                        System.out.println("Jewel Goal Achieved");
+                        System.out.println("Perception > Jewel Goal Detector");
                         this.goalAchievedlMO.setI(goalAchieved);
                     }
                 }

@@ -50,6 +50,7 @@ public class LegsActionCodelet extends Codelet{
 
 	public LegsActionCodelet(Creature nc) {
 		c = nc;
+                System.out.println("In constructor:" + c.getLeaflets().size());
 	}
 	
 	@Override
@@ -60,7 +61,6 @@ public class LegsActionCodelet extends Codelet{
 	
 	@Override
 	public void proc() {
-            
                 String comm = (String) legsActionMO.getI();
                 String commHands = (String) handsActionMO.getI();
                 
@@ -83,7 +83,7 @@ public class LegsActionCodelet extends Codelet{
                                                         log.info("Sending Forage command to agent");
                                                     try {  
                                                           c.rotate(2);  
-                                                          System.out.println("WSD3 > FORAGE");
+                                                          System.out.println("Motor > FORAGE");
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
@@ -97,7 +97,7 @@ public class LegsActionCodelet extends Codelet{
                                                     log.info("Sending move command to agent: ["+targetx+","+targety+"]");
                                                 try {
                                                      c.moveto(speed, targetx, targety);
-                                                     System.out.println("WSD3 > GOTO");
+                                                     System.out.println("Motor > GOTO > ");
                                                 } catch(Exception e) {
                                                     e.printStackTrace();
                                                 }
@@ -109,7 +109,7 @@ public class LegsActionCodelet extends Codelet{
                                             log.info("Sending stop command to agent");
                                             try {
                                                  c.moveto(0,0,0);
-                                                 System.out.println("WSD3 > STOP");
+                                                 System.out.println("Motor > STOP");
                                             } catch(Exception e) {
                                                 e.printStackTrace();
                                             }  

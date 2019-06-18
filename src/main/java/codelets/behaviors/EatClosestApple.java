@@ -95,6 +95,7 @@ public class EatClosestApple extends Codelet {
 				if(distance<reachDistance){ //eat it						
 					message.put("OBJECT", appleName);
 					message.put("ACTION", "EATIT");
+                                        System.out.println("Behaviours > Eat Apple");
 					handsMO.updateI(message.toString());
                                         DestroyClosestApple();
 				}else{

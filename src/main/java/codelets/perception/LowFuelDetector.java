@@ -40,7 +40,7 @@ public class LowFuelDetector extends Codelet {
                //System.out.println("Fuel... " + innerSense.fuel);
                synchronized(lowFuel){
                     if(innerSense.fuel<lowFuelLevel){
-                        //System.out.println("Low fuel > true");                     
+                        System.out.println("Perception > LowFuel Detector");                     
                         lowFuel = true;
                     }else{
                         //System.out.println("Low fuel > false");

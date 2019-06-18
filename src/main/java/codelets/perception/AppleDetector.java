@@ -38,6 +38,7 @@ public class AppleDetector extends Codelet {
 
         private MemoryObject visionMO;
         private MemoryObject knownApplesMO;
+        private MemoryObject lowFuelMO;
 
 	public AppleDetector(){
 		
@@ -47,6 +48,7 @@ public class AppleDetector extends Codelet {
 	public void accessMemoryObjects() {
                 synchronized(this) {
 		    this.visionMO=(MemoryObject)this.getInput("VISION");
+                    this.lowFuelMO=(MemoryObject)this.getInput("LOW_FUEL");
                 }
 		this.knownApplesMO=(MemoryObject)this.getOutput("KNOWN_APPLES");
 	}
@@ -55,27 +57,33 @@ public class AppleDetector extends Codelet {
 	public void proc() {
             CopyOnWriteArrayList<Thing> vision;
             List<Thing> known;
-            synchronized (visionMO) {
-               //vision = Collections.synchronizedList((List<Thing>) visionMO.getI());
-               vision = new CopyOnWriteArrayList((List<Thing>) visionMO.getI());    
-               known = Collections.synchronizedList((List<Thing>) knownApplesMO.getI());
-               //known = new CopyOnWriteArrayList((List<Thing>) knownApplesMO.getI());    
-               synchronized(vision) {
-                 for (Thing t : vision) {
-                    boolean found = false;
-                    synchronized(known) {
-                       CopyOnWriteArrayList<Thing> myknown = new CopyOnWriteArrayList<>(known);
-                       for (Thing e : myknown)
-                          if (t.getName().equals(e.getName())) {
-                            found = true;
-                            break;
-                          }
-                       if (found == false && t.getName().contains("PFood") && !t.getName().contains("NPFood")) known.add(t);
-                    }
-               
-                 }
-               }
-            }
+            Boolean lowFuel = (Boolean) this.lowFuelMO.getI();
+            //if(lowFuel){
+                synchronized (visionMO) {
+                   //vision = Collections.synchronizedList((List<Thing>) visionMO.getI());
+                   vision = new CopyOnWriteArrayList((List<Thing>) visionMO.getI());    
+                   known = Collections.synchronizedList((List<Thing>) knownApplesMO.getI());
+                   //known = new CopyOnWriteArrayList((List<Thing>) knownApplesMO.getI());    
+                   synchronized(vision) {
+                     for (Thing t : vision) {
+                        boolean found = false;
+                        synchronized(known) {
+                           CopyOnWriteArrayList<Thing> myknown = new CopyOnWriteArrayList<>(known);
+                           for (Thing e : myknown)
+                              if (t.getName().equals(e.getName())) {
+                                found = true;
+                                break;
+                              }
+                           if (found == false && t.getName().contains("PFood") && !t.getName().contains("NPFood")){
+                               known.add(t);
+                               System.out.println("Perception > Apple Detector");
+                           }
+                        }
+
+                     }
+                   }
+                }
+            //}
 	}// end proc
         
         @Override

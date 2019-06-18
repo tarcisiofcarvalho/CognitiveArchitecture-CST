@@ -30,7 +30,6 @@ public class ClosestUndesiredJewelDetector extends Codelet {
         
 	public ClosestUndesiredJewelDetector(int reachDistance) {
             this.reachDistance = reachDistance;
-            System.out.println("codelets.perception.ClosestDesiredJewelDetector.<init>()");
 	}
 
 
@@ -66,7 +65,7 @@ public class ClosestUndesiredJewelDetector extends Codelet {
                                 // -- Checking if it is an undesired jewel --- //
                                 if(check && !jewelControl.isDesiredJewel(t.getAttributes().getColor())){
                                     closestUndesiredJewels.add(t);
-                                    System.out.println("Undesired jewel ahead: " + t.getName());
+                                    System.out.println("Perception > Undesired Jewel Ahead Detector");
                                 }
                             }  
                         }                        

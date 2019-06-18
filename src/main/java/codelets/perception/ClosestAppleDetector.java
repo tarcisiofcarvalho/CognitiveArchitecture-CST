@@ -27,6 +27,7 @@ import java.util.Collections;
 import memory.CreatureInnerSense;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import support.GoalAchieved;
 import ws3dproxy.model.Thing;
 
 /**
@@ -36,43 +37,45 @@ import ws3dproxy.model.Thing;
 public class ClosestAppleDetector extends Codelet {
 
 	private MemoryObject knownMO;
+        private MemoryObject goalAchievedMO;
 	private MemoryObject closestAppleMO;
 	private MemoryObject innerSenseMO;
 	
         private List<Thing> known;
+        GoalAchieved goalAchieved;
+        int reachDistance;
 
-	public ClosestAppleDetector() {
+	public ClosestAppleDetector(int reachDistance) {
+            this.reachDistance = reachDistance;
 	}
 
 
 	@Override
 	public void accessMemoryObjects() {
 		this.knownMO=(MemoryObject)this.getInput("KNOWN_APPLES");
+                this.goalAchievedMO=(MemoryObject)this.getInput("GOAL_ACHIEVED");
 		this.innerSenseMO=(MemoryObject)this.getInput("INNER");
-		this.closestAppleMO=(MemoryObject)this.getOutput("CLOSEST_APPLE");	
+		this.closestAppleMO=(MemoryObject)this.getOutput("CLOSEST_APPLE");
+
 	}
 	@Override
 	public void proc() {
                 Thing closest_apple=null;
                 known = Collections.synchronizedList((List<Thing>) knownMO.getI());
                 CreatureInnerSense cis = (CreatureInnerSense) innerSenseMO.getI();
+                goalAchieved = (GoalAchieved) goalAchievedMO.getI();
                 synchronized(known) {
-		   if(known.size() != 0){
+		   if(known.size() != 0 && !goalAchieved.getGameGoalStatus()){
 			//Iterate over objects in vision, looking for the closest apple
                         CopyOnWriteArrayList<Thing> myknown = new CopyOnWriteArrayList<>(known);
                         for (Thing t : myknown) {
 				String objectName=t.getName();
 				if(objectName.contains("PFood") && !objectName.contains("NPFood")){ //Then, it is an apple
-                                        if(closest_apple == null){    
-                                                closest_apple = t;
-					}
-                                        else {
-						double Dnew = calculateDistance(t.getX1(), t.getY1(), cis.position.getX(), cis.position.getY());
-                                                double Dclosest= calculateDistance(closest_apple.getX1(), closest_apple.getY1(), cis.position.getX(), cis.position.getY());
-						if(Dnew<Dclosest){
-                                                        closest_apple = t;
-						}
-					}
+                                        double distance = calculateDistance(t.getX1(), t.getY1(), cis.position.getX(), cis.position.getY());
+                                        if(distance<reachDistance){
+                                            System.out.println("Perception > Apple Ahead Detector");
+                                            closest_apple = t;
+                                        }
 				}
 			}
                         

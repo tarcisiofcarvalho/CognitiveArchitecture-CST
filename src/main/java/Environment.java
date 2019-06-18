@@ -17,8 +17,8 @@
  *    Klaus Raizer, Andre Paraense, Ricardo Ribeiro Gudwin
  *****************************************************************************/
 
-import java.util.Random;
 import ws3dproxy.CommandExecException;
+import ws3dproxy.CommandUtility;
 import ws3dproxy.WS3DProxy;
 import ws3dproxy.model.Creature;
 import ws3dproxy.model.World;
@@ -34,37 +34,47 @@ public class Environment {
     public String robotID="r0";
     public Creature c = null;
     
-    public Environment() {
+    public Environment(){
           WS3DProxy proxy = new WS3DProxy();
           try {   
-             World w = World.getInstance();
-             w.reset();
+            
+            // --- Word and creature setup --- //
+            World w = World.getInstance();
+            w.reset();
+            c = proxy.createCreature(100,450,0);
              
-             // -- Loop of 20 Jewels //
-//             for(int x=0;x<=4;x++){     
-//                for(int i=0;i<=5;i++){
-//                    World.createJewel(i, Math.ceil(Math.random()*600.0), Math.ceil(Math.random()*600.0));
-//                }                 
-//             }
-//            for(int i=1;i<=10;i++){
-//                World.createFood(0, Math.ceil(Math.random()*600.0), Math.ceil(Math.random()*600.0));
-//            }                 
+            // -- Loop of 20 random Jewels //
+            for(int x=0;x<=4;x++){     
+               for(int i=0;i<=5;i++){
+                   World.createJewel(i, Math.ceil(Math.random()*600.0), Math.ceil(Math.random()*600.0));
+               }                 
+            }
+            
+            // --- Loop to create 10 foods --- //
+            for(int i=1;i<=10;i++){
+                World.createFood(0, Math.ceil(Math.random()*600.0), Math.ceil(Math.random()*600.0));
+            }                 
+            
+            // -- Jewel for testing -- //
+            //World.createJewel(0, 350.0, 250.0);
+            //World.createJewel(0, 450.0, 500.0);
+            //World.createJewel(1, 400.0, 500.0);
+            //World.createFood(0, 100.0, 100.0);
+            
+            // --- Creating a new way point as target symbol --- //
+            CommandUtility.sendNewWaypoint(700.0, 500.0);
+            
+            // --- Staring the creature --- //
+            c.start();
              
-             World.createJewel(0, 350.0, 250.0);
-             World.createJewel(0, 450.0, 500.0);
-             World.createJewel(1, 400.0, 500.0);
-             World.createFood(0, 100.0, 100.0);
-             
-             c = proxy.createCreature(100,450,0);
-             c.start();
-//             w.grow(1);
-             //c.setRobotID("r0");
-             //c.startCamera("r0");
+            // --- Updating the state to reflect the creature leaflets --- //
+            c.updateState();
              
              
           } catch (CommandExecException e) {
-              
+              e.printStackTrace();
           }
+          
           System.out.println("Robot "+c.getName()+" is ready to go.");
 		
 

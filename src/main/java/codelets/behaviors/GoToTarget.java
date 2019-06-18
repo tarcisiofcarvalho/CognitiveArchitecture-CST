@@ -59,12 +59,13 @@ public class GoToTarget extends Codelet {
                     message.put("X", selfX);
                     message.put("Y", selfY);
                     message.put("SPEED", 0.0);
+                    System.out.println("Behaviours > Stopped in front the target");
                 }else{
                     message.put("ACTION", "GOTO");
                     message.put("X", targetX);
                     message.put("Y", targetY);
                     message.put("SPEED", creatureBasicSpeed);  
-                    System.out.println("Going to the spot.....");
+                    System.out.println("Behaviours > Go To the Target");
                 }
                 legsMO.updateI(message.toString());
             }

@@ -25,9 +25,15 @@ import org.json.JSONObject;
 
 import br.unicamp.cst.core.entities.Codelet;
 import br.unicamp.cst.core.entities.MemoryObject;
+import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import support.JewelControl;
+import ws3dproxy.CommandExecException;
+import ws3dproxy.CommandUtility;
 import ws3dproxy.model.Creature;
+import ws3dproxy.model.Leaflet;
 
 /**
  *  Hands Action Codelet monitors working storage for instructions and acts on the World accordingly.
@@ -40,6 +46,7 @@ import ws3dproxy.model.Creature;
 public class HandsActionCodelet extends Codelet{
 
 	private MemoryObject handsMO;
+        private MemoryObject jewelControlMO;
 	private String previousHandsAction="";
         private Creature c;
         private Random r = new Random();
@@ -52,10 +59,12 @@ public class HandsActionCodelet extends Codelet{
         @Override
 	public void accessMemoryObjects() {
 		handsMO=(MemoryObject)this.getInput("HANDS");
+                jewelControlMO=(MemoryObject)this.getInput("JEWEL_CONTROL");
 	}
 	public void proc() {
             
                 String command = (String) handsMO.getI();
+                JewelControl jewelControl = (JewelControl) jewelControlMO.getI();
 
 		if(!command.equals("") && (!command.equals(previousHandsAction))){
 			JSONObject jsonAction;
@@ -67,7 +76,7 @@ public class HandsActionCodelet extends Codelet{
 					if(action.equals("PICKUP")){
                                                 try {
                                                  c.putInSack(objectName);
-                                                 System.out.println("WS3D > Get Jewel: " + objectName);
+                                                 System.out.println("Motor > Get Jewel: " + objectName);
                                                 } catch (Exception e) {
                                                     
                                                 } 
@@ -79,7 +88,7 @@ public class HandsActionCodelet extends Codelet{
 					if(action.equals("EATIT")){
                                                 try {
                                                  c.eatIt(objectName);
-                                                 System.out.println("WS3D > Eat Apple: " + objectName);
+                                                 System.out.println("Motor > Eat Apple: " + objectName);
                                                 } catch (Exception e) {
                                                     
                                                 }
@@ -88,12 +97,24 @@ public class HandsActionCodelet extends Codelet{
 					if(action.equals("BURY")){
                                                 try {
                                                  c.hideIt(objectName);
-                                                 System.out.println("WS3D > Hide Jewel: " + objectName);
+                                                 System.out.println("Motor > Hide Jewel: " + objectName);
                                                 } catch (Exception e) {
                                                     
                                                 }
 						log.info("Sending Bury command to agent:****** "+objectName+"**********");							
 					}
+                                        if(action.equals("EXCHANGE")){
+                                            System.out.println("Motor > Exchange Leaflet");
+                                            try {
+                                                c.deliverLeaflet(""+c.getLeaflets().get(0));
+                                                c.deliverLeaflet(""+c.getLeaflets().get(1));
+                                                c.deliverLeaflet(""+c.getLeaflets().get(2));
+                                            } catch (Exception ex) {
+                                                ex.printStackTrace();
+                                                Logger.getLogger(HandsActionCodelet.class.getName()).log(Level.SEVERE, null, ex);
+                                            }
+                                            System.out.println("Motor > Exchange Leaflet");
+                                        }
 				}
 //                                else if (jsonAction.has("ACTION")) {
 //                                    int x=0,y=0;
@@ -114,7 +135,6 @@ public class HandsActionCodelet extends Codelet{
 			}
 
 		}
-//		System.out.println("OK_hands");
 		previousHandsAction = (String) handsMO.getI();
 	}//end proc
 

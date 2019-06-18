@@ -58,7 +58,7 @@ public class ClosestDesiredJewelDetector extends Codelet {
                                 }
                                 if(check){
                                     closestDesiredJewels.add(t);
-                                    System.out.println("Desired jewel ahead: " + t.getName());
+                                    System.out.println("Perception > Desired Jewel Ahead Detector");
                                 }
                             }  
                         }

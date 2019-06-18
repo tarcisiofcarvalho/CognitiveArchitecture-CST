@@ -5,17 +5,6 @@
  */
 package support;
 
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import ws3dproxy.CommandExecException;
-import ws3dproxy.WS3DProxy;
-import ws3dproxy.model.Creature;
-import ws3dproxy.model.Environment;
-import ws3dproxy.model.Leaflet;
-import ws3dproxy.model.World;
-
 /**
  *
  * @author tfc
@@ -24,9 +13,21 @@ public class GoalAchieved {
     
     private boolean jewelGoalstatus;
     private boolean gameGoalstatus;
+    private boolean finished;
+    private boolean leafletGenerationStatus;
     
     public GoalAchieved(){
         this.jewelGoalstatus = false;
+        this.gameGoalstatus = false;
+        this.finished = false;
+    }
+    
+    public boolean getLeafletGenerationStatus(){
+        return this.leafletGenerationStatus;
+    }
+    
+    public void setLeafletGenerationStatus(boolean leafletGenerationStatus){
+        this.leafletGenerationStatus = leafletGenerationStatus;
     }
     
     public void setJewelGoalStatus(boolean status){
@@ -43,5 +44,13 @@ public class GoalAchieved {
     
     public boolean getGameGoalStatus(){
         return this.gameGoalstatus;
-    }    
+    }
+
+    public void setFinishedStatus(boolean finished){
+        this.finished = finished;
+    }
+    
+    public boolean getFinishStatus(){
+        return this.finished;
+    }
 }

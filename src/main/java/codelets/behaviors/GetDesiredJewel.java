@@ -53,7 +53,7 @@ public class GetDesiredJewel extends Codelet {
                         message.put("OBJECT", t.getName());
                         message.put("ACTION", "PICKUP");
                         handsMO.updateI(message.toString());
-                        System.out.println("Get Jewel: " + t.getName());
+                        System.out.println("Behaviours > Get Desired Jewel");
                      //synchronized(jewelControl){
                         jewelControl.processLeafletControl(t.getAttributes().getColor(),t.getName());
                     //}
@@ -75,7 +75,6 @@ public class GetDesiredJewel extends Codelet {
             // --- Removing the Desired Jewels gotten already from Memory Object --- //
             //synchronized(closestDesiredJewels) {  
                 CopyOnWriteArrayList<Thing> myknown = new CopyOnWriteArrayList<>(desiredJewels);
-                System.out.println("closestDesiredJewels.size(): " + closestDesiredJewels.size());
                 for(int i=0;i<closestDesiredJewels.size();i++){
                     int pos = -1;
                     for(int j=0;j<myknown.size();j++){

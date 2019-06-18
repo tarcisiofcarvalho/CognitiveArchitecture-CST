@@ -91,13 +91,15 @@ public class GoToClosestApple extends Codelet {
                                         message.put("ACTION", "GOTO");
                                         message.put("X", (int)appleX);
                                         message.put("Y", (int)appleY);
-                                        message.put("SPEED", creatureBasicSpeed);	
+                                        message.put("SPEED", creatureBasicSpeed);
+                                        System.out.println("Behaviours > Go to Apple Jewel");
 
                                 }else{//Stop
                                         message.put("ACTION", "GOTO");
                                         message.put("X", (int)appleX);
                                         message.put("Y", (int)appleY);
                                         message.put("SPEED", 0.0);	
+                                        System.out.println("Behaviours > Stop in front of Apple");
                                 }
                                 legsMO.updateI(message.toString());
                         } catch (JSONException e) {

@@ -55,13 +55,13 @@ public class Forage extends Codelet {
 	public void proc() {
             desiredJewel = (List<Thing>) desiredJewelsMO.getI();
             goalAchieved = (GoalAchieved) goalAchievedMO.getI();
-            System.out.println("goalAchieved.getJewelGoalStatus() >>> "+ goalAchieved.getJewelGoalStatus());
+//            System.out.println("goalAchieved.getJewelGoalStatus() >>> "+ goalAchieved.getJewelGoalStatus());
             if (desiredJewel.size() == 0 && !goalAchieved.getJewelGoalStatus()) {
 		JSONObject message=new JSONObject();
                 try {
                         message.put("ACTION", "FORAGE");
                         legsMO.updateI(message.toString());
-                        System.out.println("FORAGE");
+                        System.out.println("Behaviours > Forage");
 
                 } catch (JSONException e) {
                         // TODO Auto-generated catch block

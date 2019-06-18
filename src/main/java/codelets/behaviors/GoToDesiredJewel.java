@@ -67,16 +67,16 @@ public class GoToDesiredJewel extends Codelet {
                                 message.put("X", (int)nearestJewel.getX1());
                                 message.put("Y", (int)nearestJewel.getY1());
                                 message.put("SPEED", creatureBasicSpeed);
-                                //System.out.println("Go to desired jewel: "+nearestJewel.getName());
+                                System.out.println("Behaviours > Go To Desired Jewel");
 
                         }
-                        else{//Stop
-                                message.put("ACTION", "GOTO");
-                                message.put("X", (int)nearestJewel.getX1());
-                                message.put("Y", (int)nearestJewel.getY1());
-                                message.put("SPEED", 0.0);	
-                                //System.out.println("Closest to the desired jewel: "+nearestJewel.getName());
-                        }
+//                        else{//Stop
+//                                message.put("ACTION", "GOTO");
+//                                message.put("X", (int)nearestJewel.getX1());
+//                                message.put("Y", (int)nearestJewel.getY1());
+//                                message.put("SPEED", 0.0);	
+//                                System.out.println("Behaviours > Stop in forn the Desired Jewel");
+//                        }
                         legsMO.updateI(message.toString());
                     } catch (JSONException e) {
                             e.printStackTrace();
