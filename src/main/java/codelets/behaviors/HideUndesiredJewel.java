@@ -39,12 +39,16 @@ public class HideUndesiredJewel extends Codelet {
             closestUndesiredJewels = Collections.synchronizedList((List<Thing>) closestUndesiredJewelsMO.getI());
 //            System.out.println("closestUndesiredJewels.size(): " + closestUndesiredJewels.size());
             if(closestUndesiredJewels!=null){
-                JSONObject message=new JSONObject();
-                for(Thing t : closestUndesiredJewels){
-                    message.put("OBJECT", t.getName());
-                    message.put("ACTION", "BURY");
-                    handsMO.updateI(message.toString());
-                    System.out.println("Behaviours > Hide Undesired Jewel");
+                synchronized(closestUndesiredJewels){
+                    JSONObject message=new JSONObject();
+                    for(Thing t : closestUndesiredJewels){
+                        message.put("OBJECT", t.getName());
+                        message.put("ACTION", "BURY");
+                        handsMO.updateI(message.toString());
+                        System.out.println("Behaviours > Hide Undesired Jewel");
+                    }
+                    closestUndesiredJewels = Collections.synchronizedList((new ArrayList<Thing>()));
+                    closestUndesiredJewelsMO.setI(closestUndesiredJewels);
                 }
                 updateJewelControl(); 
             }else{

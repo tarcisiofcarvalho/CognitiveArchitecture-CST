@@ -24,6 +24,7 @@ import br.unicamp.cst.core.entities.MemoryObject;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import support.GoalAchieved;
 import ws3dproxy.model.Thing;
 
 /**
@@ -38,7 +39,7 @@ public class AppleDetector extends Codelet {
 
         private MemoryObject visionMO;
         private MemoryObject knownApplesMO;
-        private MemoryObject lowFuelMO;
+        private MemoryObject goalAchievedMO;
 
 	public AppleDetector(){
 		
@@ -48,7 +49,7 @@ public class AppleDetector extends Codelet {
 	public void accessMemoryObjects() {
                 synchronized(this) {
 		    this.visionMO=(MemoryObject)this.getInput("VISION");
-                    this.lowFuelMO=(MemoryObject)this.getInput("LOW_FUEL");
+                    this.goalAchievedMO=(MemoryObject)this.getInput("GOAL_ACHIEVED");
                 }
 		this.knownApplesMO=(MemoryObject)this.getOutput("KNOWN_APPLES");
 	}
@@ -57,8 +58,8 @@ public class AppleDetector extends Codelet {
 	public void proc() {
             CopyOnWriteArrayList<Thing> vision;
             List<Thing> known;
-            Boolean lowFuel = (Boolean) this.lowFuelMO.getI();
-            //if(lowFuel){
+            GoalAchieved goalAchieved = (GoalAchieved) this.goalAchievedMO.getI();
+            if(!goalAchieved.getGameGoalStatus() || !goalAchieved.getFinishStatus()){
                 synchronized (visionMO) {
                    //vision = Collections.synchronizedList((List<Thing>) visionMO.getI());
                    vision = new CopyOnWriteArrayList((List<Thing>) visionMO.getI());    
@@ -83,7 +84,7 @@ public class AppleDetector extends Codelet {
                      }
                    }
                 }
-            //}
+            }
 	}// end proc
         
         @Override

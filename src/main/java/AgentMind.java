@@ -56,7 +56,7 @@ import ws3dproxy.model.Thing;
  */
 public class AgentMind extends Mind {
     
-    private static int creatureBasicSpeed=2;
+    private static int creatureBasicSpeed=3;
     private static int reachDistance=70;
     
     public AgentMind(Environment env) {
@@ -195,7 +195,7 @@ public class AgentMind extends Mind {
                 // --- Apple Detector --- //
                 Codelet ad = new AppleDetector();
                 ad.addInput(visionMO);
-                ad.addInput(lowFuelMO);
+                ad.addInput(goalAchievedMO);
                 ad.addOutput(knownApplesMO);
                 insertCodelet(ad);
                 
@@ -211,7 +211,7 @@ public class AgentMind extends Mind {
                 /******* Create Behavior Codelets *********/
                 /******************************************/
 		// --- Exchange Jewels Codelet --- //
-                Codelet exchangeJewels = new ExchangeJewels();
+                Codelet exchangeJewels = new ExchangeJewels(env.c);
 		exchangeJewels.addInput(goalAchievedMO);
                 exchangeJewels.addInput(innerSenseMO);
                 exchangeJewels.addInput(jewelControlMO);
@@ -270,7 +270,7 @@ public class AgentMind extends Mind {
                 
                 // sets a time step for running the codelets to avoid heating too much your machine
                 for (Codelet c : this.getCodeRack().getAllCodelets())
-                    c.setTimeStep(500);
+                    c.setTimeStep(200);
 		
 		// Start Cognitive Cycle
 		start(); 

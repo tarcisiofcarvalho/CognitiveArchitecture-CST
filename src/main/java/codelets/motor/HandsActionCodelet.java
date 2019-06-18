@@ -105,10 +105,11 @@ public class HandsActionCodelet extends Codelet{
 					}
                                         if(action.equals("EXCHANGE")){
                                             System.out.println("Motor > Exchange Leaflet");
+                                            
                                             try {
-                                                c.deliverLeaflet(""+c.getLeaflets().get(0));
-                                                c.deliverLeaflet(""+c.getLeaflets().get(1));
-                                                c.deliverLeaflet(""+c.getLeaflets().get(2));
+                                                c.deliverLeaflet(""+c.getLeaflets().get(0).getID());
+                                                c.deliverLeaflet(""+c.getLeaflets().get(1).getID());
+                                                c.deliverLeaflet(""+c.getLeaflets().get(2).getID());
                                             } catch (Exception ex) {
                                                 ex.printStackTrace();
                                                 Logger.getLogger(HandsActionCodelet.class.getName()).log(Level.SEVERE, null, ex);

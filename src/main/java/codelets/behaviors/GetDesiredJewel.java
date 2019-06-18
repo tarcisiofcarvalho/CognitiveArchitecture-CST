@@ -47,7 +47,7 @@ public class GetDesiredJewel extends Codelet {
             jewelControl = (JewelControl) jewelControlMO.getI();
             
             if(closestDesiredJewels!=null){
-                //synchronized(closestDesiredJewels){
+                synchronized(closestDesiredJewels){
                     JSONObject message=new JSONObject();
                     for(Thing t : closestDesiredJewels){
                         message.put("OBJECT", t.getName());
@@ -58,7 +58,9 @@ public class GetDesiredJewel extends Codelet {
                         jewelControl.processLeafletControl(t.getAttributes().getColor(),t.getName());
                     //}
                     }
-                //}
+                    closestDesiredJewels = Collections.synchronizedList((new ArrayList<Thing>()));
+                    closestDesiredJewelsMO.setI(closestDesiredJewels);
+                }
                 updateJewelControl(); 
             }else{
                 handsMO.updateI("");

@@ -92,7 +92,7 @@ public class GoToClosestApple extends Codelet {
                                         message.put("X", (int)appleX);
                                         message.put("Y", (int)appleY);
                                         message.put("SPEED", creatureBasicSpeed);
-                                        System.out.println("Behaviours > Go to Apple Jewel");
+                                        System.out.println("Behaviours > Go to Apple");
 
                                 }else{//Stop
                                         message.put("ACTION", "GOTO");

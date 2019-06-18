@@ -97,7 +97,7 @@ public class LegsActionCodelet extends Codelet{
                                                     log.info("Sending move command to agent: ["+targetx+","+targety+"]");
                                                 try {
                                                      c.moveto(speed, targetx, targety);
-                                                     System.out.println("Motor > GOTO > ");
+                                                     System.out.println("Motor > GOTO ");
                                                 } catch(Exception e) {
                                                     e.printStackTrace();
                                                 }

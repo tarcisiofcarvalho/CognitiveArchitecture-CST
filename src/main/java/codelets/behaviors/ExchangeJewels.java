@@ -26,8 +26,10 @@ public class ExchangeJewels extends Codelet {
 
         GoalAchieved goalAchieved;
         JewelControl jewelControl;
+        Creature c;
         
-	public ExchangeJewels() {
+	public ExchangeJewels(Creature c) {
+            this.c = c;
 	}
 
 	@Override
@@ -61,10 +63,22 @@ public class ExchangeJewels extends Codelet {
                     message.put("SPEED", 0.0);                
                     legsMO.updateI(message.toString());
 
-                    JSONObject msg=new JSONObject();
-                    msg.put("ACTION", "EXCHANGE"); 
-                    msg.put("OBJECT", "JEWELS");
-                    handsMO.updateI(msg.toString());   
+                    //JSONObject msg=new JSONObject();
+                    //msg.put("ACTION", "EXCHANGE"); 
+                    //msg.put("OBJECT", "JEWELS");
+                    //handsMO.updateI(msg.toString()); 
+
+                    try {
+                        System.out.println("Leaflets delivering...");
+                        c.deliverLeaflet(""+c.getLeaflets().get(0).getID());
+                        c.deliverLeaflet(""+c.getLeaflets().get(1).getID());
+                        c.deliverLeaflet(""+c.getLeaflets().get(2).getID());
+                        System.out.println("Leaflets delivered");
+  
+                    } catch (CommandExecException ex) {
+                        ex.printStackTrace();;
+                        //Logger.getLogger(ExchangeJewels.class.getName()).log(Level.SEVERE, null, ex);
+                    }
 
                     // --- Exchange Jewels --- //
                     //WS3DProxy proxy = new WS3DProxy();

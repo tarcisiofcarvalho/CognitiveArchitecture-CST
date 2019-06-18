@@ -53,7 +53,7 @@ public class Vision extends Codelet{
 	public void proc() { 
             
             c.updateState(); 
-            System.out.println("Sensory >> Vision");
+
             synchronized (visionMO) {
                 List<Thing> lt = c.getThingsInVision();
                 visionMO.setI(lt);
