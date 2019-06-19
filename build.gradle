@@ -14,6 +14,24 @@ sourceCompatibility = '1.8'
 if (!hasProperty('mainClass')) {
     ext.mainClass = 'ExperimentMain'
 }
+//create a single Jar with all dependencies
+//task fatJar(type: Jar) {
+//	manifest {
+//        attributes ('Main-Class': 'ExperimentMain')
+//    }
+//    baseName = project.name + '-all'
+//    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+//    with jar
+//}
+jar{
+    manifest{
+        attributes(
+            "Main-Class": "ExperimentMain",
+            "Class-Path": configurations.runtime.files.collect {"$it.name"}.join(' ')
+        )
+    }    
+        
+}
 
 repositories {
     mavenCentral()
