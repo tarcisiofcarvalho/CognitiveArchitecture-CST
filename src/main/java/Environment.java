@@ -49,7 +49,7 @@ public class Environment {
                    World.createJewel(i, Math.ceil(Math.random()*600.0), Math.ceil(Math.random()*600.0));
                }                 
             }
-//            
+            
 //            // --- Loop to create 10 foods --- //
 //            for(int i=1;i<=5;i++){
 //                World.createFood(0, Math.ceil(Math.random()*600.0), Math.ceil(Math.random()*600.0));

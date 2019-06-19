@@ -75,7 +75,7 @@ public class AppleDetector extends Codelet {
                                 found = true;
                                 break;
                               }
-                           if (found == false && t.getName().contains("PFood") && !t.getName().contains("NPFood")){
+                           if (found == false && (t.getName().contains("PFood") || t.getName().contains("NPFood"))){
                                known.add(t);
                                System.out.println("Perception > Apple Detector");
                            }

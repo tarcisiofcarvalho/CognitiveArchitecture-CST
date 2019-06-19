@@ -227,13 +227,13 @@ public class AgentMind extends Mind {
                 insertCodelet(goToTarget);
                 
 		// --- Hide Undesired Jewel Codelet --- //
-                Codelet hideUndesiredJewel = new HideUndesiredJewel();
+                Codelet hideUndesiredJewel = new HideUndesiredJewel(env.c);
 		hideUndesiredJewel.addInput(closestUndesiredJewelMO);
 		hideUndesiredJewel.addOutput(handsMO);
                 insertCodelet(hideUndesiredJewel);
                 
                 // --- Get Desired Jewel Codelet --- //
-                Codelet getDesiredJewel = new GetDesiredJewel();
+                Codelet getDesiredJewel = new GetDesiredJewel(env.c);
 		getDesiredJewel.addInput(closestDesiredJewelMO);
 		getDesiredJewel.addInput(desiredJewelMO);
                 getDesiredJewel.addInput(jewelControlMO);
@@ -255,7 +255,7 @@ public class AgentMind extends Mind {
 		goToClosestApple.addOutput(legsMO);
                 insertCodelet(goToClosestApple);
 		
-		Codelet eatApple=new EatClosestApple(reachDistance);
+		Codelet eatApple=new EatClosestApple(reachDistance,env.c);
 		eatApple.addInput(closestAppleMO);
 		eatApple.addInput(innerSenseMO);
 		eatApple.addOutput(handsMO);

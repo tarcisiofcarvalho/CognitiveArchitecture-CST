@@ -70,7 +70,7 @@ public class ClosestAppleDetector extends Codelet {
                         CopyOnWriteArrayList<Thing> myknown = new CopyOnWriteArrayList<>(known);
                         for (Thing t : myknown) {
 				String objectName=t.getName();
-				if(objectName.contains("PFood") && !objectName.contains("NPFood")){ //Then, it is an apple
+				if(objectName.contains("PFood") || objectName.contains("NPFood")){ //Then, it is an apple
                                         double distance = calculateDistance(t.getX1(), t.getY1(), cis.position.getX(), cis.position.getY());
                                         if(distance<reachDistance){
                                             System.out.println("Perception > Apple Ahead Detector");

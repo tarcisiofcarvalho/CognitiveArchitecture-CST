@@ -14,7 +14,11 @@ import java.util.Iterator;
 import memory.CreatureInnerSense;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import support.JewelControl;
+import ws3dproxy.CommandExecException;
+import ws3dproxy.model.Creature;
 import ws3dproxy.model.Thing;
 
 public class GetDesiredJewel extends Codelet {
@@ -27,9 +31,11 @@ public class GetDesiredJewel extends Codelet {
         List<Thing> closestDesiredJewels;
         List<Thing> desiredJewels;
         JewelControl jewelControl;
+        Creature c;
         
-	public GetDesiredJewel() {
-                setTimeStep(50);
+	public GetDesiredJewel(Creature c) {
+                //setTimeStep(50);
+            this.c = c;
 	}
 
 	@Override
@@ -50,13 +56,19 @@ public class GetDesiredJewel extends Codelet {
                 synchronized(closestDesiredJewels){
                     JSONObject message=new JSONObject();
                     for(Thing t : closestDesiredJewels){
-                        message.put("OBJECT", t.getName());
-                        message.put("ACTION", "PICKUP");
-                        handsMO.updateI(message.toString());
-                        System.out.println("Behaviours > Get Desired Jewel");
-                     //synchronized(jewelControl){
-                        jewelControl.processLeafletControl(t.getAttributes().getColor(),t.getName());
-                    //}
+                        try {
+                            c.putInSack(t.getName());
+                            //message.put("OBJECT", t.getName());
+                            //message.put("ACTION", "PICKUP");
+                            handsMO.updateI("");
+                            System.out.println("Behaviours > Get Desired Jewel");
+                            //synchronized(jewelControl){
+                            jewelControl.processLeafletControl(t.getAttributes().getColor(),t.getName());
+                            //}
+                        } catch (CommandExecException ex) {
+                            ex.printStackTrace();
+                            Logger.getLogger(GetDesiredJewel.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
                     closestDesiredJewels = Collections.synchronizedList((new ArrayList<Thing>()));
                     closestDesiredJewelsMO.setI(closestDesiredJewels);

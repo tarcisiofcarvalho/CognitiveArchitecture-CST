@@ -101,6 +101,13 @@ public class ExchangeJewels extends Codelet {
 //                    }
 //                    
                     System.out.println("Game completed");
+                    try 
+	                {
+	                     Thread.sleep(1000);
+	                } catch (Exception e){
+	                     e.printStackTrace();
+	                }
+                    System.exit(0);
                     this.goalAchieved.setFinishedStatus(true);
                     // --- Updating Memory Object --- //
                     this.goalAchievedMO.setI(goalAchieved);

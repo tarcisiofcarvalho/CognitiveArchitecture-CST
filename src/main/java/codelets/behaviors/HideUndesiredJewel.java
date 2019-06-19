@@ -15,6 +15,7 @@ import memory.CreatureInnerSense;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import support.JewelControl;
+import ws3dproxy.model.Creature;
 import ws3dproxy.model.Thing;
 
 public class HideUndesiredJewel extends Codelet {
@@ -23,9 +24,11 @@ public class HideUndesiredJewel extends Codelet {
 	private MemoryObject handsMO;
 
         List<Thing> closestUndesiredJewels;
+        Creature c;
         
-	public HideUndesiredJewel() {
+	public HideUndesiredJewel(Creature c) {
                 //setTimeStep(50);
+            this.c = c;
 	}
 
 	@Override
@@ -42,9 +45,15 @@ public class HideUndesiredJewel extends Codelet {
                 synchronized(closestUndesiredJewels){
                     JSONObject message=new JSONObject();
                     for(Thing t : closestUndesiredJewels){
-                        message.put("OBJECT", t.getName());
-                        message.put("ACTION", "BURY");
-                        handsMO.updateI(message.toString());
+                          try{
+                              c.hideIt(t.getName());
+                              handsMO.updateI("");
+                          }catch(Exception e){
+                              
+                          }
+//                        message.put("OBJECT", t.getName());
+//                        message.put("ACTION", "BURY");
+//                        handsMO.updateI(message.toString());
                         System.out.println("Behaviours > Hide Undesired Jewel");
                     }
                     closestUndesiredJewels = Collections.synchronizedList((new ArrayList<Thing>()));

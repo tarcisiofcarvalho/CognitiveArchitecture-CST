@@ -30,6 +30,7 @@ import br.unicamp.cst.core.entities.MemoryObject;
 import memory.CreatureInnerSense;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import ws3dproxy.model.Creature;
 import ws3dproxy.model.Thing;
 
 public class EatClosestApple extends Codelet {
@@ -42,10 +43,12 @@ public class EatClosestApple extends Codelet {
         Thing closestApple;
         CreatureInnerSense cis;
         List<Thing> known;
+        Creature c;
 
-	public EatClosestApple(int reachDistance) {
+	public EatClosestApple(int reachDistance, Creature c) {
                 setTimeStep(50);
 		this.reachDistance=reachDistance;
+                this.c =c;
 	}
 
 	@Override
@@ -92,12 +95,19 @@ public class EatClosestApple extends Codelet {
 			double distance = pSelf.distance(pApple);
 			JSONObject message=new JSONObject();
 			try {
-				if(distance<reachDistance){ //eat it						
-					message.put("OBJECT", appleName);
-					message.put("ACTION", "EATIT");
-                                        System.out.println("Behaviours > Eat Apple");
-					handsMO.updateI(message.toString());
+				if(distance<reachDistance){ //eat it
+                                    try {
+                                        c.eatIt(appleName);
+                                        handsMO.updateI("");
                                         DestroyClosestApple();
+                                        System.out.println("Behaviours > Eat Apple");
+                                    } catch (Exception e) {
+                                    }
+//					message.put("OBJECT", appleName);
+//					message.put("ACTION", "EATIT");
+//                                        System.out.println("Behaviours > Eat Apple");
+//					handsMO.updateI(message.toString());
+//                                        DestroyClosestApple();
 				}else{
 					handsMO.updateI("");	//nothing
 				}
