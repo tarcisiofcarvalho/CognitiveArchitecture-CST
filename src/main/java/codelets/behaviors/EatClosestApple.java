@@ -108,10 +108,10 @@ public class EatClosestApple extends Codelet {
                                 message.put("ACTION", "EATIT");
                                 System.out.println("Behaviours > Eat Apple");
                                 if(objectId==-1){
-                                    objectId = actionMO.setI(message.toString(),0.5); 
+                                    objectId = actionMO.setI(message.toString(),0.7); 
                                     actionControl.setEatApple(objectId);
                                 }else{
-                                    actionMO.setI(message.toString(),0.5,objectId);
+                                    actionMO.setI(message.toString(),0.7,objectId);
                                 }
                                 DestroyClosestApple();
                         }else{

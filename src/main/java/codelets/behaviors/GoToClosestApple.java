@@ -27,6 +27,8 @@ import org.json.JSONObject;
 import br.unicamp.cst.core.entities.Codelet;
 import br.unicamp.cst.core.entities.MemoryContainer;
 import br.unicamp.cst.core.entities.MemoryObject;
+import java.util.Collections;
+import java.util.List;
 import memory.CreatureInnerSense;
 import support.ActionControl;
 import ws3dproxy.model.Thing;
@@ -36,6 +38,7 @@ public class GoToClosestApple extends Codelet {
 	private MemoryObject lowFuelMO;
         private MemoryObject actionControlMO;
         private MemoryObject closestAppleMO;
+        private MemoryObject knownApplesMO;
 	private MemoryObject selfInfoMO;
         private MemoryContainer actionMO;
 	private int creatureBasicSpeed;
@@ -55,6 +58,7 @@ public class GoToClosestApple extends Codelet {
                 actionControlMO=(MemoryObject)this.getInput("ACTION_CONTROL");
 		selfInfoMO=(MemoryObject)this.getInput("INNER");
                 lowFuelMO=(MemoryObject)this.getInput("LOW_FUEL"); // Low Fuel Object Memory
+                this.knownApplesMO=(MemoryObject)this.getInput("KNOWN_APPLES");
                 actionMO=(MemoryContainer)this.getOutput("CREATURE_ACTION");
 	}
 
@@ -63,26 +67,38 @@ public class GoToClosestApple extends Codelet {
             // Find distance between creature and closest apple
             //If far, go towards it
             //If close, stops
-
             // --- If low fuel go to the Closest Apple --- //
+            CreatureInnerSense cis = (CreatureInnerSense) selfInfoMO.getI();
+            List<Thing> known = Collections.synchronizedList((List<Thing>) knownApplesMO.getI());
+            Thing closestApple = null;
+            double maxDistance = 999;
+            if(known!=null){
+                if(known.size()>0){
+                    for (Thing t : known) {
+                        double distance = calculateDistance(t.getX1(), t.getY1(), cis.position.getX(), cis.position.getY());
+                        if(distance<maxDistance){
+                            closestApple = t;
+                            maxDistance = distance;
+                        }
+                    }
+                }
+            }
             Boolean lowFuel = (Boolean) lowFuelMO.getI();
             if(lowFuel){
-                Thing closestApple = (Thing) closestAppleMO.getI();
+                //Thing closestApple = (Thing) closestAppleMO.getI();
                 actionControl = (ActionControl) actionControlMO.getI();
-                CreatureInnerSense cis = (CreatureInnerSense) selfInfoMO.getI();
-
-                if(closestApple != null)
+                
+                if(closestApple != null && lowFuel)
                 {
                     double appleX=0;
                     double appleY=0;
                     try {
-                            appleX = closestApple.getX1();
-                            appleY = closestApple.getY1();
+                        appleX = closestApple.getX1();
+                        appleY = closestApple.getY1();
 
                     } catch (Exception e) {
-                            e.printStackTrace();
+                        e.printStackTrace();
                     }
-
                     double selfX=cis.position.getX();
                     double selfY=cis.position.getY();
 
@@ -95,28 +111,28 @@ public class GoToClosestApple extends Codelet {
                     double distance = pSelf.distance(pApple);
                     JSONObject message=new JSONObject();
                     try {
-                            if(distance>reachDistance){ //Go to it
-                                    message.put("ACTION", "GOTO");
-                                    message.put("X", (int)appleX);
-                                    message.put("Y", (int)appleY);
-                                    message.put("SPEED", creatureBasicSpeed);
-                                    message.put("TYPE", "GO_APPLE");
-                                    System.out.println("Behaviours > Go to Apple");
+                        if(distance>reachDistance){ //Go to it
+                            message.put("ACTION", "GOTO");
+                            message.put("X", (int)appleX);
+                            message.put("Y", (int)appleY);
+                            message.put("SPEED", creatureBasicSpeed);
+                            message.put("TYPE", "GO_APPLE");
+                            System.out.println("Behaviours > Go to Apple");
 
-                            }else{//Stop
-                                    message.put("ACTION", "GOTO");
-                                    message.put("X", (int)appleX);
-                                    message.put("Y", (int)appleY);
-                                    message.put("SPEED", 0.0);
-                                    message.put("TYPE", "GO_APPLE");
-                                    System.out.println("Behaviours > Stop in front of Apple");
-                            }
-                            if(objectId==-1){
-                                objectId = actionMO.setI(message.toString(),0.2);
-                                actionControl.setGotToApple(objectId);
-                            }else{
-                                actionMO.setI(message.toString(),0.2, objectId);
-                            }
+                        }else{//Stop
+                            message.put("ACTION", "GOTO");
+                            message.put("X", (int)appleX);
+                            message.put("Y", (int)appleY);
+                            message.put("SPEED", 0.0);
+                            message.put("TYPE", "GO_APPLE");
+                            System.out.println("Behaviours > Stop in front of Apple");
+                        }
+                        if(objectId==-1){
+                            objectId = actionMO.setI(message.toString(),0.49);
+                            actionControl.setGotToApple(objectId);
+                        }else{
+                            actionMO.setI(message.toString(),0.49, objectId);
+                        }
 
                     } catch (JSONException e) {
                             e.printStackTrace();
@@ -128,6 +144,9 @@ public class GoToClosestApple extends Codelet {
         @Override
         public void calculateActivation() {
         
+        }
+        private double calculateDistance(double x1, double y1, double x2, double y2) {
+            return(Math.sqrt(Math.pow(x1-x2, 2)+Math.pow(y1-y2, 2)));
         }
 
 }

@@ -68,10 +68,10 @@ public class Forage extends Codelet {
                 try {
                         message.put("ACTION", "FORAGE");
                         if(objectId==-1){
-                            objectId = actionMO.setI(message.toString(),0.7);
+                            objectId = actionMO.setI(message.toString(),0.5);
                             actionControl.setForage(objectId);
                         }else{
-                            actionMO.setI(message.toString(),0.7,objectId);
+                            actionMO.setI(message.toString(),0.5,objectId);
                         }
                         
                         System.out.println("Behaviours > Forage");

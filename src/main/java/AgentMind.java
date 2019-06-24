@@ -253,6 +253,7 @@ public class AgentMind extends Mind {
 		goToClosestApple.addInput(closestAppleMO);
 		goToClosestApple.addInput(innerSenseMO);
                 goToClosestApple.addInput(lowFuelMO);
+                goToClosestApple.addInput(knownApplesMO);
                 goToClosestApple.addInput(actionControlMO);
                 goToClosestApple.addOutput(actionMO);
                 insertCodelet(goToClosestApple);
