@@ -1,28 +1,28 @@
 package codelets.behaviors;
 
-import java.awt.Point;
-import java.awt.geom.Point2D;
-
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import br.unicamp.cst.core.entities.Codelet;
+import br.unicamp.cst.core.entities.MemoryContainer;
 import br.unicamp.cst.core.entities.MemoryObject;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
-import memory.CreatureInnerSense;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import support.JewelControl;
+import support.ActionControl;
 import ws3dproxy.model.Creature;
 import ws3dproxy.model.Thing;
 
 public class HideUndesiredJewel extends Codelet {
 
 	private MemoryObject closestUndesiredJewelsMO;
-	private MemoryObject handsMO;
+	private MemoryContainer handsMO;
+        private MemoryContainer actionMO;
+        private MemoryObject actionControlMO;
+        
+        ActionControl actionControl;
 
+        int objectId = -1;
+        
         List<Thing> closestUndesiredJewels;
         Creature c;
         
@@ -34,26 +34,29 @@ public class HideUndesiredJewel extends Codelet {
 	@Override
 	public void accessMemoryObjects() {
 		closestUndesiredJewelsMO=(MemoryObject)this.getInput("CLOSEST_UNDESIRED_JEWELS");
-              	handsMO=(MemoryObject)this.getOutput("HANDS");
+                actionControlMO=(MemoryObject)this.getInput("ACTION_CONTROL");
+              	handsMO=(MemoryContainer)this.getOutput("HANDS");
+                actionMO=(MemoryContainer)this.getOutput("CREATURE_ACTION");
 	}
 
 	@Override
 	public void proc() {
+            actionControl = (ActionControl)this.actionControlMO.getI();
             closestUndesiredJewels = Collections.synchronizedList((List<Thing>) closestUndesiredJewelsMO.getI());
 //            System.out.println("closestUndesiredJewels.size(): " + closestUndesiredJewels.size());
             if(closestUndesiredJewels!=null){
                 synchronized(closestUndesiredJewels){
                     JSONObject message=new JSONObject();
                     for(Thing t : closestUndesiredJewels){
-                          try{
-                              c.hideIt(t.getName());
-                              handsMO.updateI("");
-                          }catch(Exception e){
-                              
-                          }
-//                        message.put("OBJECT", t.getName());
-//                        message.put("ACTION", "BURY");
-//                        handsMO.updateI(message.toString());
+                        message.put("OBJECT", t.getName());
+                        message.put("ACTION", "BURY");
+                        if(objectId==-1){
+                            objectId = actionMO.setI(message.toString(),0.4);
+                            actionControl.setHideJewel(objectId);
+                        }else{
+                            actionMO.setI(message.toString(),0.4,objectId);
+                        }
+                        
                         System.out.println("Behaviours > Hide Undesired Jewel");
                     }
                     closestUndesiredJewels = Collections.synchronizedList((new ArrayList<Thing>()));
@@ -61,7 +64,12 @@ public class HideUndesiredJewel extends Codelet {
                 }
                 updateJewelControl(); 
             }else{
-                handsMO.updateI("");	//nothing
+                if(objectId==-1){
+                    objectId = actionMO.setI("",0.0);
+                    actionControl.setHideJewel(objectId);
+                }else{
+                    actionMO.setI("",0.0,objectId);
+                }
             }
 	}
         

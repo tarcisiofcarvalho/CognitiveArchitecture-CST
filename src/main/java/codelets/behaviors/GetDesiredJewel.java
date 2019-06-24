@@ -1,23 +1,16 @@
 package codelets.behaviors;
 
-import java.awt.Point;
-import java.awt.geom.Point2D;
-
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import br.unicamp.cst.core.entities.Codelet;
+import br.unicamp.cst.core.entities.MemoryContainer;
 import br.unicamp.cst.core.entities.MemoryObject;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
-import memory.CreatureInnerSense;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import support.ActionControl;
 import support.JewelControl;
-import ws3dproxy.CommandExecException;
 import ws3dproxy.model.Creature;
 import ws3dproxy.model.Thing;
 
@@ -26,11 +19,16 @@ public class GetDesiredJewel extends Codelet {
 	private MemoryObject closestDesiredJewelsMO;
         private MemoryObject desiredJewelsMO;
         private MemoryObject jewelControlMO;
-	private MemoryObject handsMO;
+        private MemoryObject actionControlMO;
+        private MemoryContainer actionMO;
+        
+        
+        int objectId = -1;
 
         List<Thing> closestDesiredJewels;
         List<Thing> desiredJewels;
         JewelControl jewelControl;
+        ActionControl actionControl;
         Creature c;
         
 	public GetDesiredJewel(Creature c) {
@@ -43,7 +41,8 @@ public class GetDesiredJewel extends Codelet {
 		closestDesiredJewelsMO=(MemoryObject)this.getInput("CLOSEST_DESIRED_JEWELS");
                 desiredJewelsMO=(MemoryObject)this.getInput("DESIRED_JEWELS");
                 jewelControlMO=(MemoryObject)this.getInput("JEWEL_CONTROL");
-		handsMO=(MemoryObject)this.getOutput("HANDS");
+                actionControlMO=(MemoryObject)this.getInput("ACTION_CONTROL");
+                actionMO=(MemoryContainer)this.getOutput("CREATURE_ACTION");
 	}
 
 	@Override
@@ -51,31 +50,34 @@ public class GetDesiredJewel extends Codelet {
             closestDesiredJewels = Collections.synchronizedList((List<Thing>) closestDesiredJewelsMO.getI());
             desiredJewels = Collections.synchronizedList((List<Thing>) desiredJewelsMO.getI());
             jewelControl = (JewelControl) jewelControlMO.getI();
+            actionControl = (ActionControl) actionControlMO.getI();
             
             if(closestDesiredJewels!=null){
                 synchronized(closestDesiredJewels){
                     JSONObject message=new JSONObject();
                     for(Thing t : closestDesiredJewels){
-                        try {
-                            c.putInSack(t.getName());
-                            //message.put("OBJECT", t.getName());
-                            //message.put("ACTION", "PICKUP");
-                            handsMO.updateI("");
-                            System.out.println("Behaviours > Get Desired Jewel");
-                            //synchronized(jewelControl){
-                            jewelControl.processLeafletControl(t.getAttributes().getColor(),t.getName());
-                            //}
-                        } catch (CommandExecException ex) {
-                            ex.printStackTrace();
-                            Logger.getLogger(GetDesiredJewel.class.getName()).log(Level.SEVERE, null, ex);
+                        message.put("OBJECT", t.getName());
+                        message.put("ACTION", "PICKUP");
+                        if(objectId==-1){
+                            objectId = actionMO.setI(message.toString(),0.6);
+                            actionControl.setGetJewel(objectId);
+                        }else{
+                            actionMO.setI(message.toString(),0.6,objectId);
                         }
+                        System.out.println("Behaviours > Get Desired Jewel");
+                        jewelControl.processLeafletControl(t.getAttributes().getColor(),t.getName());
                     }
                     closestDesiredJewels = Collections.synchronizedList((new ArrayList<Thing>()));
                     closestDesiredJewelsMO.setI(closestDesiredJewels);
                 }
                 updateJewelControl(); 
             }else{
-                handsMO.updateI("");
+                if(objectId==-1){
+                    objectId = actionMO.setI("",0.0);
+                    actionControl.setGetJewel(objectId);
+                }else{
+                    actionMO.setI("",0.0, objectId);
+                }
             }
 	}
         

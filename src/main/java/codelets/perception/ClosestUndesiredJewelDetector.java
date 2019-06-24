@@ -29,7 +29,7 @@ public class ClosestUndesiredJewelDetector extends Codelet {
         private JewelControl jewelControl;
         
 	public ClosestUndesiredJewelDetector(int reachDistance) {
-            this.reachDistance = reachDistance;
+            this.reachDistance = 60;
 	}
 
 

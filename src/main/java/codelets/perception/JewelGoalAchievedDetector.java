@@ -1,6 +1,7 @@
 package codelets.perception;
 
 import br.unicamp.cst.core.entities.Codelet;
+import br.unicamp.cst.core.entities.MemoryContainer;
 import br.unicamp.cst.core.entities.MemoryObject;
 import support.GoalAchieved;
 import support.JewelControl;
@@ -15,7 +16,8 @@ public class JewelGoalAchievedDetector extends Codelet {
 
         private MemoryObject jewelControlMO;
         private MemoryObject goalAchievedlMO;
-        private MemoryObject handsMO;
+        private MemoryContainer handsMO;
+        
 
         GoalAchieved goalAchieved;
         
@@ -27,7 +29,7 @@ public class JewelGoalAchievedDetector extends Codelet {
 	public void accessMemoryObjects() {
                 synchronized(this) {
                     this.jewelControlMO=(MemoryObject)this.getInput("JEWEL_CONTROL");
-                    this.handsMO=(MemoryObject)this.getInput("HANDS");
+                    this.handsMO=(MemoryContainer)this.getInput("HANDS");
                 }
 		this.goalAchievedlMO=(MemoryObject)this.getOutput("GOAL_ACHIEVED");
 	}
@@ -36,20 +38,11 @@ public class JewelGoalAchievedDetector extends Codelet {
 	public void proc() {
             JewelControl jewelControl = (JewelControl) jewelControlMO.getI();
             goalAchieved = (GoalAchieved) this.goalAchievedlMO.getI();
-            
-                String commHands = (String) handsMO.getI();
-                
-                if (commHands == null) commHands = "";
-                
-                if(commHands.equals("")){
-                    if(jewelControl.getJewelRemainingTotal()==0 && !goalAchieved.getJewelGoalStatus()){
-                        goalAchieved.setJewelGoalStatus(true);
-                        System.out.println("Perception > Jewel Goal Detector");
-                        this.goalAchievedlMO.setI(goalAchieved);
-                    }
-                }
-
-            
+            if(jewelControl.getJewelRemainingTotal()==0 && !goalAchieved.getJewelGoalStatus()){
+                goalAchieved.setJewelGoalStatus(true);
+                System.out.println("Perception > Jewel Goal Detector");
+                this.goalAchievedlMO.setI(goalAchieved);
+            } 
 	}// end proc
         
         @Override

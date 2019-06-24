@@ -20,10 +20,12 @@
 package codelets.behaviors;
 
 import br.unicamp.cst.core.entities.Codelet;
+import br.unicamp.cst.core.entities.MemoryContainer;
 import br.unicamp.cst.core.entities.MemoryObject;
 import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
+import support.ActionControl;
 import support.GoalAchieved;
 import ws3dproxy.model.Thing;
 
@@ -39,11 +41,15 @@ public class Forage extends Codelet {
         //private MemoryObject knownMO;
         private MemoryObject goalAchievedMO;
         private MemoryObject desiredJewelsMO;
+        private MemoryObject actionControlMO;
         private List<Thing> known;
-        private MemoryObject legsMO;
+        private MemoryContainer actionMO;
+        
+        int objectId = -1;
 
         List<Thing> desiredJewel;
         GoalAchieved goalAchieved;
+        ActionControl actionControl;
         
 	/**
 	 * Default constructor
@@ -55,23 +61,34 @@ public class Forage extends Codelet {
 	public void proc() {
             desiredJewel = (List<Thing>) desiredJewelsMO.getI();
             goalAchieved = (GoalAchieved) goalAchievedMO.getI();
-//            System.out.println("goalAchieved.getJewelGoalStatus() >>> "+ goalAchieved.getJewelGoalStatus());
+            actionControl = (ActionControl) actionControlMO.getI();
+            
             if (desiredJewel.size() == 0 && !goalAchieved.getJewelGoalStatus()) {
 		JSONObject message=new JSONObject();
                 try {
                         message.put("ACTION", "FORAGE");
-                        legsMO.updateI(message.toString());
+                        if(objectId==-1){
+                            objectId = actionMO.setI(message.toString(),0.7);
+                            actionControl.setForage(objectId);
+                        }else{
+                            actionMO.setI(message.toString(),0.7,objectId);
+                        }
+                        
                         System.out.println("Behaviours > Forage");
 
                 } catch (JSONException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+                    e.printStackTrace();
                 }
             }
-//            else{
-//                System.out.println("FORAGE NONO ");
-//                legsMO.updateI("");
-//            }            
+            else{
+//               System.out.println("FORAGE NONO ");
+                if(objectId==-1){
+                    objectId = actionMO.setI("",0.0);
+                    actionControl.setForage(objectId);
+                }else{
+                    actionMO.setI("",0.0,objectId);
+                }
+            }            
 		
 	}
 
@@ -80,7 +97,8 @@ public class Forage extends Codelet {
             //knownMO = (MemoryObject)this.getInput("KNOWN_APPLES");
             desiredJewelsMO = (MemoryObject) this.getInput("DESIRED_JEWELS");
             goalAchievedMO = (MemoryObject) this.getInput("GOAL_ACHIEVED");
-            legsMO=(MemoryObject)this.getOutput("LEGS");	
+            actionControlMO = (MemoryObject) this.getInput("ACTION_CONTROL");
+            actionMO=(MemoryContainer)this.getOutput("CREATURE_ACTION");
 	}
         
         @Override

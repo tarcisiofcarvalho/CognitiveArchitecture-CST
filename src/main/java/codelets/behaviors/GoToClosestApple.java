@@ -25,19 +25,25 @@ import java.awt.geom.Point2D;
 import org.json.JSONException;
 import org.json.JSONObject;
 import br.unicamp.cst.core.entities.Codelet;
+import br.unicamp.cst.core.entities.MemoryContainer;
 import br.unicamp.cst.core.entities.MemoryObject;
 import memory.CreatureInnerSense;
+import support.ActionControl;
 import ws3dproxy.model.Thing;
 
 public class GoToClosestApple extends Codelet {
 
 	private MemoryObject lowFuelMO;
+        private MemoryObject actionControlMO;
         private MemoryObject closestAppleMO;
 	private MemoryObject selfInfoMO;
-	private MemoryObject legsMO;
+        private MemoryContainer actionMO;
 	private int creatureBasicSpeed;
 	private double reachDistance;
 
+        int objectId = -1;
+        ActionControl actionControl;
+        
 	public GoToClosestApple(int creatureBasicSpeed, int reachDistance) {
 		this.creatureBasicSpeed=creatureBasicSpeed;
 		this.reachDistance=reachDistance;
@@ -46,67 +52,77 @@ public class GoToClosestApple extends Codelet {
 	@Override
 	public void accessMemoryObjects() {
 		closestAppleMO=(MemoryObject)this.getInput("CLOSEST_APPLE");
+                actionControlMO=(MemoryObject)this.getInput("ACTION_CONTROL");
 		selfInfoMO=(MemoryObject)this.getInput("INNER");
                 lowFuelMO=(MemoryObject)this.getInput("LOW_FUEL"); // Low Fuel Object Memory
-                legsMO=(MemoryObject)this.getOutput("LEGS");
+                actionMO=(MemoryContainer)this.getOutput("CREATURE_ACTION");
 	}
 
 	@Override
 	public void proc() {
-		// Find distance between creature and closest apple
-		//If far, go towards it
-		//If close, stops
+            // Find distance between creature and closest apple
+            //If far, go towards it
+            //If close, stops
 
-                // --- If low fuel go to the Closest Apple --- //
-                Boolean lowFuel = (Boolean) lowFuelMO.getI();
-                if(lowFuel){
-                    Thing closestApple = (Thing) closestAppleMO.getI();
-                    CreatureInnerSense cis = (CreatureInnerSense) selfInfoMO.getI();
+            // --- If low fuel go to the Closest Apple --- //
+            Boolean lowFuel = (Boolean) lowFuelMO.getI();
+            if(lowFuel){
+                Thing closestApple = (Thing) closestAppleMO.getI();
+                actionControl = (ActionControl) actionControlMO.getI();
+                CreatureInnerSense cis = (CreatureInnerSense) selfInfoMO.getI();
 
-                    if(closestApple != null)
-                    {
-                        double appleX=0;
-                        double appleY=0;
-                        try {
-                                appleX = closestApple.getX1();
-                                appleY = closestApple.getY1();
+                if(closestApple != null)
+                {
+                    double appleX=0;
+                    double appleY=0;
+                    try {
+                            appleX = closestApple.getX1();
+                            appleY = closestApple.getY1();
 
-                        } catch (Exception e) {
-                                e.printStackTrace();
-                        }
-
-                        double selfX=cis.position.getX();
-                        double selfY=cis.position.getY();
-
-                        Point2D pApple = new Point();
-                        pApple.setLocation(appleX, appleY);
-
-                        Point2D pSelf = new Point();
-                        pSelf.setLocation(selfX, selfY);
-
-                        double distance = pSelf.distance(pApple);
-                        JSONObject message=new JSONObject();
-                        try {
-                                if(distance>reachDistance){ //Go to it
-                                        message.put("ACTION", "GOTO");
-                                        message.put("X", (int)appleX);
-                                        message.put("Y", (int)appleY);
-                                        message.put("SPEED", creatureBasicSpeed);
-                                        System.out.println("Behaviours > Go to Apple");
-
-                                }else{//Stop
-                                        message.put("ACTION", "GOTO");
-                                        message.put("X", (int)appleX);
-                                        message.put("Y", (int)appleY);
-                                        message.put("SPEED", 0.0);	
-                                        System.out.println("Behaviours > Stop in front of Apple");
-                                }
-                                legsMO.updateI(message.toString());
-                        } catch (JSONException e) {
-                                e.printStackTrace();
-                        }	
+                    } catch (Exception e) {
+                            e.printStackTrace();
                     }
+
+                    double selfX=cis.position.getX();
+                    double selfY=cis.position.getY();
+
+                    Point2D pApple = new Point();
+                    pApple.setLocation(appleX, appleY);
+
+                    Point2D pSelf = new Point();
+                    pSelf.setLocation(selfX, selfY);
+
+                    double distance = pSelf.distance(pApple);
+                    JSONObject message=new JSONObject();
+                    try {
+                            if(distance>reachDistance){ //Go to it
+                                    message.put("ACTION", "GOTO");
+                                    message.put("X", (int)appleX);
+                                    message.put("Y", (int)appleY);
+                                    message.put("SPEED", creatureBasicSpeed);
+                                    message.put("TYPE", "GO_APPLE");
+                                    System.out.println("Behaviours > Go to Apple");
+
+                            }else{//Stop
+                                    message.put("ACTION", "GOTO");
+                                    message.put("X", (int)appleX);
+                                    message.put("Y", (int)appleY);
+                                    message.put("SPEED", 0.0);
+                                    message.put("TYPE", "GO_APPLE");
+                                    System.out.println("Behaviours > Stop in front of Apple");
+                            }
+                            if(objectId==-1){
+                                objectId = actionMO.setI(message.toString(),0.2);
+                                actionControl.setGotToApple(objectId);
+                            }else{
+                                actionMO.setI(message.toString(),0.2, objectId);
+                            }
+
+                    } catch (JSONException e) {
+                            e.printStackTrace();
+                    }	
                 }
+            }
 	}//end proc
         
         @Override

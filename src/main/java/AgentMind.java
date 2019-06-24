@@ -18,6 +18,7 @@
  *****************************************************************************/
 
 import br.unicamp.cst.core.entities.Codelet;
+import br.unicamp.cst.core.entities.MemoryContainer;
 import br.unicamp.cst.core.entities.MemoryObject;
 import br.unicamp.cst.core.entities.Mind;
 import codelets.behaviors.EatClosestApple;
@@ -28,8 +29,7 @@ import codelets.behaviors.GoToClosestApple;
 import codelets.behaviors.GoToDesiredJewel;
 import codelets.behaviors.GoToTarget;
 import codelets.behaviors.HideUndesiredJewel;
-import codelets.motor.HandsActionCodelet;
-import codelets.motor.LegsActionCodelet;
+import codelets.motor.CreatureActionCodelet;
 import codelets.perception.AppleDetector;
 import codelets.perception.ClosestAppleDetector;
 import codelets.perception.ClosestDesiredJewelDetector;
@@ -40,12 +40,12 @@ import codelets.perception.JewelGoalAchievedDetector;
 import codelets.perception.LowFuelDetector;
 import codelets.sensors.InnerSense;
 import codelets.sensors.Vision;
-import com.sun.media.jfxmedia.AudioClip;
 import support.JewelControl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import memory.CreatureInnerSense;
+import support.ActionControl;
 import support.GoalAchieved;
 import support.MindView;
 import ws3dproxy.model.Thing;
@@ -57,14 +57,13 @@ import ws3dproxy.model.Thing;
 public class AgentMind extends Mind {
     
     private static int creatureBasicSpeed=2;
-    private static int reachDistance=70;
+    private static int reachDistance=50;
     
     public AgentMind(Environment env) {
                 super();
                 
                 // Declare Memory Objects
-	        MemoryObject legsMO;
-	        MemoryObject handsMO;
+                MemoryContainer actionMO;
                 MemoryObject visionMO;
                 MemoryObject innerSenseMO;
                 MemoryObject closestAppleMO;
@@ -75,8 +74,12 @@ public class AgentMind extends Mind {
                 MemoryObject closestDesiredJewelMO;
                 MemoryObject closestUndesiredJewelMO;
                 MemoryObject goalAchievedMO;
+                MemoryObject actionControlMO;
                 
                 //Initialize Memory Objects
+                ActionControl actionControl = new ActionControl();
+                actionControlMO=createMemoryObject("ACTION_CONTROL",actionControl);
+                
                 GoalAchieved goalAchieved = new GoalAchieved();
                 goalAchievedMO=createMemoryObject("GOAL_ACHIEVED",goalAchieved);
                 
@@ -95,8 +98,9 @@ public class AgentMind extends Mind {
                 Boolean lowFuel = false;
                 lowFuelMO=createMemoryObject("LOW_FUEL", lowFuel); // Low Fuel Memory Object
                 
-                legsMO=createMemoryObject("LEGS", "");
-		handsMO=createMemoryObject("HANDS", "");
+                actionMO=createMemoryContainer("CREATURE_ACTION");
+                actionMO.setI("",0.0);
+                
                 List<Thing> vision_list = Collections.synchronizedList(new ArrayList<Thing>());
 		visionMO=createMemoryObject("VISION",vision_list);
                 CreatureInnerSense cis = new CreatureInnerSense();
@@ -112,13 +116,13 @@ public class AgentMind extends Mind {
                 mv.addMO(visionMO);
                 mv.addMO(closestAppleMO);
                 mv.addMO(innerSenseMO);
-                mv.addMO(handsMO);
-                mv.addMO(legsMO);
+                mv.addMO(actionMO);
                 mv.addMO(lowFuelMO);
                 mv.addMO(desiredJewelMO);
                 mv.addMO(jewelControlMO);
                 mv.addMO(closestDesiredJewelMO);
                 mv.addMO(goalAchievedMO);
+                mv.addMO(actionControlMO);
                 mv.StartTimer();
                 mv.setVisible(true);
 		
@@ -135,17 +139,12 @@ public class AgentMind extends Mind {
 		
 		/******************************************/
                 /******** Create Actuator Codelets ********/
-                /******************************************/
-		Codelet legs=new LegsActionCodelet(env.c);
-		legs.addInput(legsMO);
-                legs.addInput(handsMO);
-                insertCodelet(legs);
-
-		Codelet hands=new HandsActionCodelet(env.c);
-		hands.addInput(handsMO);
-                hands.addInput(jewelControlMO);
-                insertCodelet(hands);
-		
+                /******************************************/		
+                Codelet action=new CreatureActionCodelet(env.c);
+		action.addInput(actionMO);
+                action.addInput(actionControlMO);
+                insertCodelet(action);
+                
 		/******************************************/
                 /******* Create Perception Codelets *******/
                 /******************************************/
@@ -159,7 +158,6 @@ public class AgentMind extends Mind {
                 // --- Jewel Goal Achieved --- //
                 Codelet jewelGoalAchievedDetector = new JewelGoalAchievedDetector();
                 jewelGoalAchievedDetector.addInput(jewelControlMO);
-                jewelGoalAchievedDetector.addInput(handsMO);
                 jewelGoalAchievedDetector.addOutput(goalAchievedMO);
                 insertCodelet(jewelGoalAchievedDetector);
                 
@@ -215,21 +213,22 @@ public class AgentMind extends Mind {
 		exchangeJewels.addInput(goalAchievedMO);
                 exchangeJewels.addInput(innerSenseMO);
                 exchangeJewels.addInput(jewelControlMO);
-		exchangeJewels.addOutput(legsMO);
-                exchangeJewels.addOutput(handsMO);
+                exchangeJewels.addOutput(actionMO);
                 insertCodelet(exchangeJewels);
                 
 		// --- Go to Target Codelet --- //
                 Codelet goToTarget = new GoToTarget(creatureBasicSpeed, reachDistance);
 		goToTarget.addInput(goalAchievedMO);
                 goToTarget.addInput(innerSenseMO);
-		goToTarget.addOutput(legsMO);
+                goToTarget.addInput(actionControlMO);
+                goToTarget.addOutput(actionMO);
                 insertCodelet(goToTarget);
                 
 		// --- Hide Undesired Jewel Codelet --- //
                 Codelet hideUndesiredJewel = new HideUndesiredJewel(env.c);
 		hideUndesiredJewel.addInput(closestUndesiredJewelMO);
-		hideUndesiredJewel.addOutput(handsMO);
+                hideUndesiredJewel.addInput(actionControlMO);
+                hideUndesiredJewel.addOutput(actionMO);
                 insertCodelet(hideUndesiredJewel);
                 
                 // --- Get Desired Jewel Codelet --- //
@@ -237,14 +236,16 @@ public class AgentMind extends Mind {
 		getDesiredJewel.addInput(closestDesiredJewelMO);
 		getDesiredJewel.addInput(desiredJewelMO);
                 getDesiredJewel.addInput(jewelControlMO);
-		getDesiredJewel.addOutput(handsMO);
+		getDesiredJewel.addInput(actionControlMO);
+                getDesiredJewel.addOutput(actionMO);
                 insertCodelet(getDesiredJewel);
                 
 		// --- Go to Desired Jewel Codelet --- //
                 Codelet goToDesiredJewel = new GoToDesiredJewel(creatureBasicSpeed,reachDistance);
 		goToDesiredJewel.addInput(desiredJewelMO);
 		goToDesiredJewel.addInput(innerSenseMO);
-		goToDesiredJewel.addOutput(legsMO);
+                goToDesiredJewel.addInput(actionControlMO);
+                goToDesiredJewel.addOutput(actionMO);
                 insertCodelet(goToDesiredJewel);
                 
                 
@@ -252,20 +253,23 @@ public class AgentMind extends Mind {
 		goToClosestApple.addInput(closestAppleMO);
 		goToClosestApple.addInput(innerSenseMO);
                 goToClosestApple.addInput(lowFuelMO);
-		goToClosestApple.addOutput(legsMO);
+                goToClosestApple.addInput(actionControlMO);
+                goToClosestApple.addOutput(actionMO);
                 insertCodelet(goToClosestApple);
 		
 		Codelet eatApple=new EatClosestApple(reachDistance,env.c);
 		eatApple.addInput(closestAppleMO);
 		eatApple.addInput(innerSenseMO);
-		eatApple.addOutput(handsMO);
+                eatApple.addInput(actionControlMO);
+                eatApple.addOutput(actionMO);
                 eatApple.addOutput(knownApplesMO);
                 insertCodelet(eatApple);
                 
                 Codelet forage=new Forage();
 		forage.addInput(desiredJewelMO);
                 forage.addInput(goalAchievedMO);
-                forage.addOutput(legsMO);
+                forage.addInput(actionControlMO);
+                forage.addOutput(actionMO);
                 insertCodelet(forage);
                 
                 // sets a time step for running the codelets to avoid heating too much your machine

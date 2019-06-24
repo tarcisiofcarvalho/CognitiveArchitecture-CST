@@ -26,7 +26,7 @@ public class ClosestDesiredJewelDetector extends Codelet {
         private List<Thing> closestDesiredJewels;
 
 	public ClosestDesiredJewelDetector(int reachDistance) {
-            this.reachDistance = reachDistance;
+            this.reachDistance = 70;
 	}
 
 

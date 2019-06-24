@@ -6,18 +6,24 @@ import java.awt.geom.Point2D;
 import org.json.JSONException;
 import org.json.JSONObject;
 import br.unicamp.cst.core.entities.Codelet;
+import br.unicamp.cst.core.entities.MemoryContainer;
 import br.unicamp.cst.core.entities.MemoryObject;
 import java.util.List;
 import memory.CreatureInnerSense;
+import support.ActionControl;
 import ws3dproxy.model.Thing;
 
 public class GoToDesiredJewel extends Codelet {
 
 	private MemoryObject desiredJewelsMO;
 	private MemoryObject selfInfoMO;
-	private MemoryObject legsMO;
+        private MemoryObject actionControlMO;
+        private MemoryContainer actionMO;
 	private int creatureBasicSpeed;
 	private double reachDistance;
+        
+        int objectId = -1;
+        ActionControl actionControl;
 
 	public GoToDesiredJewel(int creatureBasicSpeed, int reachDistance) {
 		this.creatureBasicSpeed=creatureBasicSpeed;
@@ -26,9 +32,10 @@ public class GoToDesiredJewel extends Codelet {
 
 	@Override
 	public void accessMemoryObjects() {
-		desiredJewelsMO=(MemoryObject)this.getInput("DESIRED_JEWELS");
-		selfInfoMO=(MemoryObject)this.getInput("INNER");
-                legsMO=(MemoryObject)this.getOutput("LEGS");
+            desiredJewelsMO=(MemoryObject)this.getInput("DESIRED_JEWELS");
+            actionControlMO=(MemoryObject)this.getInput("ACTION_CONTROL");
+            selfInfoMO=(MemoryObject)this.getInput("INNER");
+            actionMO=(MemoryContainer)this.getOutput("CREATURE_ACTION");
 	}
 
 	@Override
@@ -38,6 +45,7 @@ public class GoToDesiredJewel extends Codelet {
             //If close, stops
             
             List<Thing> desiredJewels = (List<Thing>) desiredJewelsMO.getI();
+            actionControl = (ActionControl) actionControlMO.getI();
             CreatureInnerSense cis = (CreatureInnerSense) selfInfoMO.getI();
             
             Thing nearestJewel = null;
@@ -67,17 +75,17 @@ public class GoToDesiredJewel extends Codelet {
                                 message.put("X", (int)nearestJewel.getX1());
                                 message.put("Y", (int)nearestJewel.getY1());
                                 message.put("SPEED", creatureBasicSpeed);
+                                message.put("TYPE", "GO_JEWEL");
+                                if(objectId==-1){
+                                    objectId = actionMO.setI(message.toString(),0.3);
+                                    actionControl.setGoToJewel(objectId);
+                                }else{
+                                    actionMO.setI(message.toString(),0.3,objectId);
+                                }
                                 System.out.println("Behaviours > Go To Desired Jewel");
 
                         }
-//                        else{//Stop
-//                                message.put("ACTION", "GOTO");
-//                                message.put("X", (int)nearestJewel.getX1());
-//                                message.put("Y", (int)nearestJewel.getY1());
-//                                message.put("SPEED", 0.0);	
-//                                System.out.println("Behaviours > Stop in forn the Desired Jewel");
-//                        }
-                        legsMO.updateI(message.toString());
+                        
                     } catch (JSONException e) {
                             e.printStackTrace();
                     }
